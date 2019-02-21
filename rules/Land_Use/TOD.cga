@@ -98,7 +98,7 @@ attr Ground_Floor_Height = 3.75
 @Order(15)@Range(0,5)@Description("Determines the height of all floors other than the first floor.")
 attr Floor_Height		=3.25
 @Order(16)@Range(0,10) @Description("Determines the setback of of each floor from the previous floor. Stops at some minimum size.")
-attr Building_Setback= 1#_intitalBuildingSetback
+attr Building_Setback= 1 + ceil(ln(Base_FAR))
 @Order(17)@Range("From Street","Front","Back","Right and Left Side","All Sides")@Description("Determines the size of building setback for the building. The setbacks adjust based on the setback type.")
 attr Building_Setback_Side="From Street"
 @Order(18)@Range(1,20)@Description("This attribute controls the floors on which setbacks start, with the first floor starting at one.")
@@ -119,26 +119,26 @@ attr Roof_Angle = case Roof_Type=="Envelope":90 case Roof_Type=="Shed":2.5 else:
 
 @Group("ZONING","Ground Level Setbacks",5)
 @Range(0,10)@Order(1)@Description("Creates a street oriented setback away from the front edge of the lot in meters.")
-attr Front_Yard_Depth	=1#_initialSetBacks("Front")
+attr Front_Yard_Depth	=_initialSetBacks("Front")
 @Range(0,10)@Order(2)@Description("Creates a street oriented setback away from the rear edge of the lot in meters.")
-attr Rear_Yard_Depth	=1#_initialSetBacks("Rear")
+attr Rear_Yard_Depth	=_initialSetBacks("Rear")
 @Range(0,10)@Order(3)@Description("Creates a street oriented setback away from the edge of the lot in meters. Controls the Right and Left Side Setback until the Left Side Setback is changed from its default value.")
-attr Right_Yard_Depth	=1#_initialSetBacks("Side")
+attr Right_Yard_Depth	=_initialSetBacks("Side")
 @Range(0,10)@Order(4)@Description("Creates a street oriented setback away from the left edge of the lot in meters, overrides existing Right Setback which it defaults to.")
 attr Left_Yard_Depth	=Right_Yard_Depth
 @Range(100,1000000)@Order(5)@Description("Threshold Area before the lot subdivision rule is triggered. Starts at 1.5 acres.")
 attr Lot_Area_Threshold=6070.28
 @Range(10,10000)@Order(6)@Description("Width in the X direction of the resulting subdivided lots if the area threshold is met.")
-attr Lot_X_Width=50
+attr Lot_X_Width= 100 + floor(Lot_Area/10000) 
 @Range(10,10000)@Order(7)@Description("Width in the Z direction of the resulting subdivided lots if the area threshold is met.")
-attr Lot_Z_Width=50
+attr Lot_Z_Width= 50 + floor(Lot_Area/10000) 
 @Range(0,360) @Order(8) @Description("Controls the rotation of the underlying lot.")
 attr Lot_Rotation=0
 @Range("Align to Grid", "Align to Shape")@Order(9) @Description("Determines initial subdivision alignment.")
 attr Split_Offset = "Align to Shape"
 @Group("ZONING","Land Use",6)
 @Order(1) @Range("Single Family","Multi-Family Walk-Up","Multi-Family Elevator","Retail & Services","Commercial & Office","Industrial & Manufacturing","Transportation & Utility","Public Facilities & Institutions","Open Space & Outdoor Recreation","Parking","Vacant") @Description("General land use categories. You can map your data to this schema or alter the rule to fit your land use database")
-attr Land_Use_1 = case geometry.area()>4000:"Open Space & Outdoor Recreation"  case p(.5):"Multi-family Walk Up" else: "Commercial & Office"
+attr Land_Use_1 = case geometry.area()>12000:"Open Space & Outdoor Recreation"  case p(.5):"Multi-family Walk Up" else: "Commercial & Office"
 @Order(2) @Range("None","Single Family","Multi-Family Walk-Up","Multi-Family Elevator","Retail & Services","Commercial & Office","Industrial & Manufacturing","Transportation & Utility","Public Facilities & Institutions","Open Space & Outdoor Recreation","Parking","Vacant") @Description("General land use categories. You can map your data to this schema or alter the rule to fit your land use database")
 attr Land_Use_2 = "None"
 @Order(3) @Range(0,100) @Description("Number of floors of land use type 2.")
@@ -151,9 +151,9 @@ attr Greenspace_Type="Trees & Plantings"
 @Order(2) @Range(0,1000) @Description("Area required for planting placement in greenspace. ")
 attr Tree_Area_Requirement= 200
 @Order(3)@Range(0,100) @Description("Setback plantings are placed away from the building.")
-attr Planting_Setback = 2
+attr Planting_Setback = ceil(ln(Lot_Area/500))
 @Order(4) @Range(0,100) @Description("Number of plantings placed")
-attr Planting_Count= max(Lot_Area/500,5)
+attr Planting_Count= min(ceil(Lot_Area/500),5)
 @Order(5)@Description("Determines the species of the tree/plant selected for Tree 1. Random picks from 5 common tree types and is a good default.")@Range("Random","Alder Buckthorn","Amazon Sword Plant","American Chestnut","American Sycamore","Apricot","Australian Pine","Baldcypress","Balsam Fir","Bamboo","Banana Tree","Basswood","Bay Laurel","Black Locust","Blue Gum Eucalyptus","Boxwood","Cabbage Palm Fern","California Bay","California Incense Cedar","California Palm","California Redwood","California Walnut","Coconut Palm","Common Hawthorn","Common Whitebeam","Conker Tree","Date Palm","Desert Willow","Douglas Fir","European Beech","European Larch","Ficus","Field Elm","Flannelbush","Flowering Dogwood","Giant Sequoia","Hedgehog Agave","Japanese Angelica Tree","Lacy Tree Philodendron","Leyland Cypress","Lily of the Valley","Lodgepole Pine","Mediterranean Buckthorn","Mexican Palmetto","Mountain Mahogany","Northern Red Oak","Norway Maple","Norway Spruce","Orange Tree","Orchid","Oval-leaved Privet","Palm Lily","Palo Verde","Paper Birch","Parlour Palm","Prickly Pear Cactus","Red Alder","Red Hickory","Rhododendron Azaleas","Rose","Ruffle Palm","Saguaro Cactus","Sassafras","Scots Pine","Sea Islands Yucca","Shadbush","Snake Plant","Southern Magnolia","Spanish Broom","Strawberry Tree","Sugar Maple","Sunflower","Sweetgum","Umbrella Acacia","Western Juniper","White Ash","White Oak","White Poplar","White Willow","Witch Hazel","","_____________________________","GENERICS","","Generic Dead Tree","Generic Stump","Generic Unknown","","_____________________________","PROXIES","","Algarrobo","American Elderberry","American Pepper","American Silverberry","Athel Tamarisk","Avocado","Black Tupelo","Buttonbush","Canada Buffaloberry","Chinaberry Tree","Chinese Tallow Tree","Common Hackberry","Common Holly","Common Persimmon","Desert Bitterbrush","European Hornbeam","Giant Chinquapin","Honey Locust","Hophornbeam","Huckleberry Shrub","Japanese Hemlock","Japanese Nutmeg","Judas Tree","Lawson Cypress","Loblolly Bay","Mexican Buckeye","Necklacepod","Northern Bilberry","Northern White Cedar","Octopus Tree","Osage Orange","Paper Bark Tree","Pawpaw","Persian Silk Tree","Princess Tree","Smooth Sumac","Sourwood","Southern Wax Myrtle","Tanoak","Tree of Heaven","Turkish Hazel","Western Soapberry","White Mulberry","Yellow Poplar","Yew")
 attr Greenspace_Tree_1_Type				= "Random"
 @Order(6) @Range(0,1)@Description("Reduces the probability of Tree 1 appearing in a typical designated location, but also controls the Tree quantity at round abouts.")#@Hidden
@@ -339,6 +339,18 @@ _Cumulative_Setback(floornum,setbackType)=
 		((floornum-Building_Setback_Floor)*Building_Setback)/2.0
 	else:
 		(floornum-Building_Setback_Floor)*Building_Setback
+_initialSetBacks(side)=
+	case side == "Front" || side =="Rear":
+		case find(Land_Use_1,"Open Space",0)!=-1:
+			1000
+		else:
+			floor(ln(Lot_Area/1000))
+	else:
+		case find(Land_Use_1,"Open Space",0)!=-1:
+			1000
+		else:
+			floor(ln(Lot_Area/1000))
+		
 
 ###### Transit & Zoning FAR Control ###########		
 const Bus_num_increment = floor(Bus_Stop_Proximity/Bus_Decay_Increment)
