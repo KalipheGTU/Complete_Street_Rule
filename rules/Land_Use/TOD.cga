@@ -90,7 +90,7 @@ attr Right_Left_Wing_Depth = (rand(9,12))
 @Order(10) @Range(1,100)@Description("This determines the base target Floor Area Ratio (FAR) of the building. This impacts height given a set of setbacks.")
 attr Base_FAR = 4
 @Order(11) @Range(1,100)@Description("Maximum number of floors possible for the building. Is used by default to determine heights.")
-attr Max_Floor_Count = 50
+attr Max_Floor_Count = case Lot_Area <50:1 else: 50
 @Order(12) @Range(1,10000)@Description("Zoning Height Limit of Building. If this is exceeded, a report will be triggered, and it will show as faded red above the building equal to the difference.")
 attr Height_Limit = _initialTotalHeight 
 @Order(13)@Range(0,5)@Description("Determines the height of the 1st floor of the building.")
@@ -537,7 +537,7 @@ FootPrint_GeometryCheck -->
 Footprint_SizeCheck-->
 	case geometry.nFaces > 1:
 		comp(f){all: alignScopeToAxes(y) Footprint_SizeCheck }
-	case scope.sx < 1 || scope.sz < 1:
+	case scope.sx < 4 || scope.sz < 4:
 		Green_Space_Start
 	else:
 		FootPrintFoundation
